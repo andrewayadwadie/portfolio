@@ -53,7 +53,9 @@ body {
   color: var(--text-main);
   font-family: var(--font-body);
   line-height: 1.6;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
   overflow-x: hidden;
 }
 
@@ -138,7 +140,9 @@ img {
 .fade-in-up {
   opacity: 0;
   transform: translateY(30px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  transition:
+    opacity 0.6s ease-out,
+    transform 0.6s ease-out;
 }
 
 .fade-in-up.visible {
@@ -180,6 +184,15 @@ img {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-logo {
+  width: 45px;
+  height: 45px;
+  display: block;
 }
 
 .logo span {
@@ -296,39 +309,45 @@ section {
 
 /* Profile Image Animation */
 .about-image {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .profile-img-container {
-    width: 320px;
-    height: 320px;
-    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-    overflow: hidden;
-    position: relative;
-    border: 3px solid var(--primary);
-    animation: morph 8s ease-in-out infinite;
-    box-shadow: 0 0 25px var(--primary-dim);
-    transition: var(--transition);
+  width: 320px;
+  height: 320px;
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  overflow: hidden;
+  position: relative;
+  border: 3px solid var(--primary);
+  animation: morph 8s ease-in-out infinite;
+  box-shadow: 0 0 25px var(--primary-dim);
+  transition: var(--transition);
 }
 
 .profile-img-container:hover {
-    box-shadow: 0 0 40px var(--primary-dim);
-    border-color: var(--accent);
+  box-shadow: 0 0 40px var(--primary-dim);
+  border-color: var(--accent);
 }
 
 .profile-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center 20%; /* Focus more on the face */
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%; /* Focus more on the face */
 }
 
 @keyframes morph {
-    0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
-    50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
-    100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  0% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+  50% {
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+  }
+  100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
 }
 
 /* Skills */
