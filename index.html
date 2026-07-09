@@ -1,485 +1,373 @@
-<!DOCTYPE html>
-<html lang="en" data-theme="dark">
-
-<head>
+<!doctype html>
+<html lang="en">
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description"
-        content="Andrew Ayad - Senior Flutter Developer Portfolio. Expert in scalable mobile apps, clean architecture, and performance optimization." />
-    <title>Andrew Ayad | Senior Flutter Developer</title>
 
-    <!-- Google Fonts -->
+    <!-- Resolve the theme before first paint. Must stay inline, synchronous, and
+       above the stylesheet, or a returning light-theme visitor sees a flash of
+       dark. See specs/001-cv-portfolio-redesign/research.md R4. -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("theme");
+          if (t !== "light" && t !== "dark") {
+            t = window.matchMedia("(prefers-color-scheme: light)").matches
+              ? "light"
+              : "dark";
+          }
+          document.documentElement.dataset.theme = t;
+        } catch (e) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+
+    <title>Andrew Ayad | Senior Mobile Application Engineer</title>
+    <meta
+      name="description"
+      content="Andrew Ayad Wadie — Senior Mobile Application Engineer and Flutter developer. 5+ years shipping 11+ production apps across government, telecom, payments, and booking."
+    />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap"
-        rel="stylesheet" />
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Sora:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css" />
-</head>
+  </head>
 
-<body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="container nav-container">
-            <a href="#" class="logo">
-                <img src="images/logo.svg" alt="Logo" class="nav-logo" />
-                Andrew<span>.</span>
-            </a>
-            <ul class="nav-links">
-                <li><a href="#about">About</a></li>
-                <li><a href="#skills">Skills</a></li>
-                <li><a href="#projects">Projects</a></li>
-                <li><a href="#experience">Experience</a></li>
-                <li><a href="#resume">Resume</a></li>
-                <li><a href="#contact">Contact</a></li>
-                <li>
-                    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode">
-                        <i class="fas fa-moon"></i>
-                    </button>
-                </li>
-            </ul>
-            <div class="hamburger">
-                <i class="fas fa-bars"></i>
-            </div>
+  <body>
+    <!-- Icon sprite. Replaces the Font Awesome CDN: no request, no webfont,
+       inherits currentColor so it themes for free. -->
+    <svg hidden aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+      <symbol id="icon-github" viewBox="0 0 24 24" fill="currentColor">
+        <path
+          d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"
+        />
+      </symbol>
+      <symbol id="icon-linkedin" viewBox="0 0 24 24" fill="currentColor">
+        <path
+          d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"
+        />
+      </symbol>
+      <symbol id="icon-whatsapp" viewBox="0 0 24 24" fill="currentColor">
+        <path
+          d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"
+        />
+      </symbol>
+      <symbol
+        id="icon-mail"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <rect x="2" y="4" width="20" height="16" rx="2" />
+        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+      </symbol>
+      <symbol
+        id="icon-sun"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="12" cy="12" r="4" />
+        <path
+          d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"
+        />
+      </symbol>
+      <symbol
+        id="icon-moon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+      </symbol>
+      <symbol
+        id="icon-menu"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+      >
+        <path d="M4 6h16M4 12h16M4 18h16" />
+      </symbol>
+      <symbol
+        id="icon-close"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+      >
+        <path d="M18 6 6 18M6 6l12 12" />
+      </symbol>
+      <symbol
+        id="icon-external-link"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path
+          d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"
+        />
+      </symbol>
+      <symbol
+        id="icon-copy"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <rect x="9" y="9" width="13" height="13" rx="2" />
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+      </symbol>
+      <symbol
+        id="icon-check"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M20 6 9 17l-5-5" />
+      </symbol>
+      <symbol
+        id="icon-download"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path
+          d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"
+        />
+      </symbol>
+      <symbol
+        id="icon-pin"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+        <circle cx="12" cy="10" r="3" />
+      </symbol>
+    </svg>
+
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="nav">
+      <div class="container nav__inner">
+        <a href="#" class="nav__logo">
+          <img src="images/logo.svg" alt="" aria-hidden="true" />
+          Andrew<span>.</span>
+        </a>
+
+        <ul class="nav__list" id="nav-list">
+          <li><a href="#summary">About</a></li>
+          <li><a href="#experience">Experience</a></li>
+          <li><a href="#side-projects">Side Projects</a></li>
+          <li><a href="#skills">Skills</a></li>
+          <li><a href="#education">Education</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+
+        <div class="nav__actions">
+          <button
+            type="button"
+            class="btn btn--icon"
+            id="theme-toggle"
+            aria-pressed="false"
+            aria-label="Switch to light theme"
+          >
+            <svg class="icon" aria-hidden="true" focusable="false">
+              <use href="#icon-moon" id="theme-icon"></use>
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="btn btn--icon nav__toggle"
+            id="nav-toggle"
+            aria-expanded="false"
+            aria-controls="nav-list"
+            aria-label="Open menu"
+          >
+            <svg class="icon" aria-hidden="true" focusable="false">
+              <use href="#icon-menu" id="nav-toggle-icon"></use>
+            </svg>
+          </button>
         </div>
-    </nav>
+      </div>
+    </header>
 
-    <!-- Hero Section -->
-    <section id="hero" class="hero">
-        <div class="container hero-content fade-in-up">
-            <p class="hero-greeting">Hello, I'm Andrew Ayad</p>
-            <h1 class="hero-title">Senior <span>Flutter Developer</span></h1>
-            <p class="hero-description">
-                I engineer scalable, high-performance mobile applications with a focus
-                on clean architecture and delivering robust business solutions.
-                Passionate about turning complex requirements into seamless user
-                experiences.
+    <main id="main">
+      <!-- Hero and summary are static markup by design. They are the ten-second
+         payload (SC-001) and must paint without waiting for any script. -->
+      <section id="hero" class="section hero">
+        <div class="container hero__grid">
+          <div>
+            <p class="hero__eyebrow">Open to senior Flutter roles</p>
+            <h1 class="hero__title">Andrew Ayad <span>Wadie</span></h1>
+            <p class="hero__role">
+              Senior Mobile Application Engineer &middot; Flutter &amp; Dart
             </p>
-            <div class="hero-buttons">
-                <a href="#projects" class="btn btn-primary">View Projects</a>
-                <a href="#resume" class="btn btn-outline">My Resume</a>
-                <a href="#contact" class="btn btn-outline">Contact Me</a>
-            </div>
-        </div>
-    </section>
 
-    <!-- About Section -->
-    <section id="about">
+            <div class="hero__meta">
+              <span>
+                <svg class="icon" aria-hidden="true" focusable="false">
+                  <use href="#icon-pin"></use>
+                </svg>
+                Cairo, Egypt
+              </span>
+              <span>5+ years experience</span>
+              <span>11+ production apps shipped</span>
+            </div>
+
+            <div class="hero__actions">
+              <a href="#experience" class="btn btn--primary">View my work</a>
+              <a href="#contact" class="btn">Get in touch</a>
+              <a
+                href="files/Andrew_Ayad_CV.pdf"
+                class="btn"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <svg class="icon" aria-hidden="true" focusable="false">
+                  <use href="#icon-download"></use>
+                </svg>
+                Download CV
+              </a>
+            </div>
+          </div>
+
+          <div class="hero__portrait">
+            <img
+              src="images/profile.jpg"
+              width="836"
+              height="1254"
+              alt="Andrew Ayad, seated with hands clasped, wearing a dark green shirt against a deep green backdrop"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section id="summary" class="section" data-reveal>
         <div class="container">
-            <div class="section-header fade-in-up">
-                <span class="section-subtitle">01. About Me</span>
-                <h2 class="section-title">Architecting Mobile Excellence</h2>
-            </div>
-            <div class="about-grid fade-in-up">
-                <div class="about-text">
-                    <p>
-                        With over 5 years of specialized experience in Flutter
-                        development, I have dedicated my career to building
-                        production-ready mobile applications that scale. My expertise lies
-                        not just in writing code, but in crafting maintainable
-                        architectures that support long-term business growth.
-                    </p>
-                    <p>
-                        I have successfully delivered applications serving thousands of
-                        users across diverse sectors such as FinTech, E-commerce, and
-                        Government services. My approach combines technical precision with
-                        a deep understanding of product goals, ensuring that every feature
-                        I implement drives real value.
-                    </p>
-                    <p>
-                        Currently, I focus on advanced state management, performance
-                        optimization, and mentoring teams to adopt best practices in
-                        software engineering.
-                    </p>
-                </div>
-                <div class="about-image">
-                    <div class="profile-img-container">
-                        <img src="images/profile.jpg" alt="Andrew Ayad" class="profile-img">
-                    </div>
-                </div>
-            </div>
+          <div class="section__head">
+            <span class="section__eyebrow">Profile</span>
+            <h2>Architecture, performance, and shipped software.</h2>
+          </div>
+
+          <p class="summary__body">
+            Senior Mobile Application Engineer with 5+ years of experience
+            designing, building, and shipping 11+ production Flutter
+            applications on Google Play and the App Store for government,
+            telecom, fintech-adjacent payments, and booking domains. Expert in
+            Clean Architecture, Bloc/Cubit state management, and performance
+            optimization at enterprise scale, including mission-critical systems
+            for the Saudi Ministry of Environment and Ministry of Agriculture.
+            Pioneer of AI-assisted development workflows (Claude Code, OpenAI
+            Codex, spec-driven development) that cut feature delivery and code
+            review time by ~30%. Proven end-to-end ownership: architecture,
+            CI/CD, store deployment, and post-release maintenance for apps
+            serving thousands of active users.
+          </p>
+
+          <ul class="summary__stats">
+            <li class="stat">
+              <span class="stat__value">5+</span>
+              <span class="stat__label">Years building Flutter apps</span>
+            </li>
+            <li class="stat">
+              <span class="stat__value">11+</span>
+              <span class="stat__label">Production apps shipped</span>
+            </li>
+            <li class="stat">
+              <span class="stat__value">~30%</span>
+              <span class="stat__label">Faster delivery via AI workflows</span>
+            </li>
+            <li class="stat">
+              <span class="stat__value">2</span>
+              <span class="stat__label">Saudi ministries served</span>
+            </li>
+          </ul>
         </div>
-    </section>
+      </section>
 
-    <!-- Skills Section -->
-    <section id="skills">
-        <div class="container">
-            <div class="section-header fade-in-up">
-                <span class="section-subtitle">02. My Tech Stack</span>
-                <h2 class="section-title">Technical Expertise</h2>
-            </div>
+      <section
+        id="experience"
+        class="section"
+        data-render="experience"
+        data-reveal
+      ></section>
 
-            <div class="skills-grid fade-in-up">
-                <!-- Languages -->
-                <div class="skill-category">
-                    <h3 class="skill-title">
-                        <i class="fas fa-code" style="margin-right: 10px; color: var(--primary)"></i>Languages
-                    </h3>
-                    <div class="skill-list">
-                        <span class="skill-tag">Dart</span>
-                        <span class="skill-tag">JavaScript</span>
-                        <!-- <span class="skill-tag">HTML/CSS</span> -->
-                    </div>
-                </div>
+      <section
+        id="side-projects"
+        class="section"
+        data-render="sideProjects"
+        data-reveal
+      ></section>
 
-                <!-- Frameworks -->
-                <div class="skill-category">
-                    <h3 class="skill-title">
-                        <i class="fas fa-layer-group" style="margin-right: 10px; color: var(--primary)"></i>Frameworks
-                    </h3>
-                    <div class="skill-list">
-                        <span class="skill-tag">Flutter</span>
-                        <span class="skill-tag">Flutter Web</span>
-                        <span class="skill-tag">Android</span>
-                        <span class="skill-tag">iOS</span>
-                    </div>
-                </div>
+      <section
+        id="skills"
+        class="section"
+        data-render="skills"
+        data-reveal
+      ></section>
 
-                <!-- Architecture -->
-                <div class="skill-category">
-                    <h3 class="skill-title">
-                        <i class="fas fa-sitemap" style="margin-right: 10px; color: var(--primary)"></i>Architecture
-                    </h3>
-                    <div class="skill-list">
-                        <span class="skill-tag">Clean Architecture</span>
-                        <span class="skill-tag">BLoC</span>
-                        <span class="skill-tag">GetX</span>
-                        <span class="skill-tag">Provider</span>
-                        <span class="skill-tag">SOLID</span>
-                        <span class="skill-tag">MVVM</span>
-                        <span class="skill-tag">MVC</span>
-                    </div>
-                </div>
+      <section
+        id="education"
+        class="section"
+        data-render="education"
+        data-reveal
+      ></section>
 
-                <!-- Backend & Integrations -->
-                <div class="skill-category">
-                    <h3 class="skill-title">
-                        <i class="fas fa-server" style="margin-right: 10px; color: var(--primary)"></i>Backend & APIs
-                    </h3>
-                    <div class="skill-list">
-                        <span class="skill-tag">RESTful APIs</span>
-                        <span class="skill-tag">Firebase Chat/Auth</span>
-                        <span class="skill-tag">Cloud Functions</span>
-                        <span class="skill-tag">SQLite</span>
-                        <span class="skill-tag">Payment Gateways</span>
-                    </div>
-                </div>
+      <section
+        id="contact"
+        class="section"
+        data-render="contact"
+        data-reveal
+      ></section>
+    </main>
 
-                <!-- Tools -->
-                <div class="skill-category">
-                    <h3 class="skill-title">
-                        <i class="fas fa-tools" style="margin-right: 10px; color: var(--primary)"></i>Tools & DevOps
-                    </h3>
-                    <div class="skill-list">
-                        <span class="skill-tag">Git & GitHub</span>
-                        <span class="skill-tag">CI/CD (GitHub Actions)</span>
-                        <span class="skill-tag">Figma</span>
-                        <span class="skill-tag">DevTools</span>
-                        <span class="skill-tag">Unit Testing</span>
-                        <span class="skill-tag">Widget Testing</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Projects Section -->
-    <section id="projects">
-        <div class="container">
-            <div class="section-header fade-in-up">
-                <span class="section-subtitle">03. Featured Work</span>
-                <h2 class="section-title">Selected Projects</h2>
-            </div>
-            <div class="projects-grid fade-in-up">
-                <!-- Project 1 -->
-                <div class="project-card">
-                    <div class="project-content">
-                        <h3 class="project-title">Zabatnee Platform</h3>
-                        <p class="project-desc">
-                            A comprehensive reservation platform for restaurants and
-                            activities. Engineered using Clean Architecture and BLoC to
-                            handle complex booking logic and real-time availability.
-                        </p>
-                        <div class="project-tags">
-                            <span class="project-tag">#Dart</span>
-                            <span class="project-tag">#Flutter</span>
-                            <span class="project-tag">#BLoC</span>
-                            <span class="project-tag">#CleanArchitecture</span>
-                            <span class="project-tag">#Payments</span>
-                        </div>
-                        <a href="https://play.google.com/store/apps/details?id=noor.net.zabatneeandroidapp"
-                            class="project-link" target="_blank">View Project <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                </div>
-
-                <!-- Project 2 -->
-                <div class="project-card">
-                    <div class="project-content">
-                        <h3 class="project-title">Noor App</h3>
-                        <p class="project-desc">
-                            A production-grade utility application for internet billing and
-                            quota management. Serves thousands of users with secure payment
-                            processing and high-performance data visualization.
-                        </p>
-                        <div class="project-tags">
-                            <span class="project-tag">#Dart</span>
-                            <span class="project-tag">#Provider</span>
-                            <span class="project-tag">#RESTful API</span>
-                            <span class="project-tag">#SMS Integration</span>
-                            <span class="project-tag">#MVC</span>
-                            <span class="project-tag">#Payment Gateway</span>
-                        </div>
-                        <a href="https://play.google.com/store/apps/details?id=net.noor&pli=1" class="project-link"
-                            target="_blank">View Project <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                </div>
-
-                <!-- Project 3 -->
-                <div class="project-card">
-                    <div class="project-content">
-                        <h3 class="project-title">Gov. Mobile Systems</h3>
-                        <p class="project-desc">
-                            High-reliability mobile solutions built for Saudi Arabian
-                            government sectors. Features advanced geolocation tracking and
-                            real-time data synchronization under strict security protocols.
-                        </p>
-                        <div class="project-tags">
-                            <span class="project-tag">#Dart</span>
-                            <span class="project-tag">#Flutter</span>
-                            <span class="project-tag">#Google Maps</span>
-                            <span class="project-tag">#Local Database</span>
-                            <span class="project-tag">#RESTful API</span>
-                            <span class="project-tag">#GetX</span>
-                            <span class="project-tag">#Geolocation</span>
-                        </div>
-                        <!-- <a
-                href="#"
-                class="project-link"
-                style="pointer-events: none; opacity: 0.6"
-                >View Project <i class="fas fa-arrow-right"></i
-              ></a> -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Experience Section -->
-    <section id="experience">
-        <div class="container">
-            <div class="section-header fade-in-up">
-                <span class="section-subtitle">04. Career Path</span>
-                <h2 class="section-title">Professional Experience</h2>
-            </div>
-
-            <div class="experience-container fade-in-up">
-                <!-- Role 1 -->
-                <div class="experience-item">
-                    <div class="exp-header">
-                        <h3 class="exp-role">Senior Flutter Developer</h3>
-                        <span class="exp-company">Noor Data Network</span>
-                    </div>
-                    <span class="exp-date">2022 – Present</span>
-                    <ul class="exp-desc-list">
-                        <li>
-                            Built and scaled production Flutter applications serving
-                            thousands of active users.
-                        </li>
-                        <li>
-                            Spearheaded architectural decisions, migrating legacy codebases
-                            to Clean Architecture.
-                        </li>
-                        <li>
-                            Optimized app performance, reducing load times and improving
-                            frame rates.
-                        </li>
-                        <li>
-                            Collaborated closely with product and design teams to refine
-                            user requirements.
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Role 2 -->
-                <div class="experience-item">
-                    <div class="exp-header">
-                        <h3 class="exp-role">Flutter Developer</h3>
-                        <span class="exp-company">Wabcgroub</span>
-                    </div>
-                    <span class="exp-date">2022</span>
-                    <ul class="exp-desc-list">
-                        <li>
-                            Developed specialized government applications requiring high
-                            data accuracy.
-                        </li>
-                        <li>
-                            Implemented real-time geolocation services and map integrations.
-                        </li>
-                        <li>
-                            Ensured compliance with strict security and data privacy
-                            standards.
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Role 3 -->
-                <div class="experience-item">
-                    <div class="exp-header">
-                        <h3 class="exp-role">Flutter Developer</h3>
-                        <span class="exp-company">Innovation Agency</span>
-                    </div>
-                    <span class="exp-date">2021 – 2022</span>
-                    <ul class="exp-desc-list">
-                        <li>
-                            Managed the full mobile application lifecycle from concept to
-                            store deployment.
-                        </li>
-                        <li>
-                            Integrated Firebase services including Auth, Firestore, and Push
-                            Notifications.
-                        </li>
-                        <li>Utilized ML Kit for advanced on-device features.</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Services Section -->
-    <section id="services">
-        <div class="container">
-            <div class="section-header fade-in-up">
-                <span class="section-subtitle">05. What I Offer</span>
-                <h2 class="section-title">Services</h2>
-            </div>
-            <div class="services-grid fade-in-up">
-                <div class="service-card">
-                    <i class="fas fa-mobile-alt service-icon"></i>
-                    <h3 class="service-title">Mobile App Development</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem">
-                        Building cross-platform apps for iOS and Android with a single
-                        codebase, ensuring consistency and speed.
-                    </p>
-                </div>
-                <div class="service-card">
-                    <i class="fas fa-cubes service-icon"></i>
-                    <h3 class="service-title">Architecture Design</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem">
-                        Refactoring existing codebases to Clean Architecture for better
-                        maintainability and scalability.
-                    </p>
-                </div>
-                <div class="service-card">
-                    <i class="fas fa-tachometer-alt service-icon"></i>
-                    <h3 class="service-title">Performance Optimization</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem">
-                        Auditing and fixing performance bottlenecks to ensure buttery
-                        smooth 60fps experiences.
-                    </p>
-                </div>
-                <div class="service-card">
-                    <i class="fas fa-chalkboard-teacher service-icon"></i>
-                    <h3 class="service-title">Technical Consulting</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem">
-                        Advising on tech stack choices, best practices, and CI/CD pipeline
-                        setup for mobile teams.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Career Objective (Subtle) -->
-    <section id="objective" style="
-        background-color: var(--bg-card);
-        border-top: 1px solid var(--border);
-        border-bottom: 1px solid var(--border);
-      ">
-        <div class="container" style="text-align: center">
-            <div class="fade-in-up" style="max-width: 800px; margin: 0 auto">
-                <h2 class="section-title" style="font-size: 2rem; margin-bottom: 20px">
-                    Career Objective
-                </h2>
-                <p style="font-size: 1.1rem; color: var(--text-muted)">
-                    To join a forward-thinking company where I can apply my deep
-                    technical expertise to build scalable mobile solutions, contribute
-                    to architectural excellence, and drive long-term impact in a senior
-                    capacity.
-                </p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Resume Section -->
-    <section id="resume">
-        <div class="container" style="text-align: center">
-            <div class="section-header fade-in-up">
-                <span class="section-subtitle">06. Resume</span>
-                <h2 class="section-title">Check My Resume</h2>
-            </div>
-            <div class="fade-in-up">
-                <p style="
-              color: var(--text-muted);
-              margin-bottom: 30px;
-              font-size: 1.1rem;
-              max-width: 600px;
-              margin-left: auto;
-              margin-right: auto;
-            ">
-                    For a more detailed overview of my experience, tech stack, and
-                    qualifications, please feel free to download my resume.
-                </p>
-                <a href="files/Andrew_Ayad_CV.pdf" download="Andrew_Ayad_CV.pdf" target="_blank"
-                    class="btn btn-primary">
-                    <i class="fas fa-file-pdf" style="margin-right: 8px"></i> Download
-                    CV
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Contact Section -->
-    <section id="contact">
-        <div class="container contact-container fade-in-up">
-            <div class="section-header">
-                <span class="section-subtitle">07. Get In Touch</span>
-                <h2 class="section-title">Let's Work Together</h2>
-            </div>
-            <p class="contact-text">
-                I am currently open to new opportunities. Whether you have a question
-                or just want to say hi, I'll try my best to get back to you!
-            </p>
-            <a href="mailto:andrewayad60@gmail.com" class="btn btn-primary">Say Hello</a>
-
-            <div class="social-links">
-                <a href="https://www.linkedin.com/in/andrew-ayad-58764315a" class="social-icon" aria-label="LinkedIn"><i
-                        class="fab fa-linkedin"></i></a>
-                <a href="https://github.com/andrewayadwadie" class="social-icon" aria-label="GitHub"><i
-                        class="fab fa-github"></i></a>
-                <a href="#" class="social-icon" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-                <a href="https://www.facebook.com/andrew.aiad/" class="social-icon" aria-label="Facebook"><i
-                        class="fab fa-facebook"></i></a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <p>&copy; 2024 Andrew Ayad. All rights reserved.</p>
-            <p style="margin-top: 10px; font-size: 0.8rem">
-                Designed & Built by <a href="#">Andrew Ayad</a>
-            </p>
-        </div>
+    <footer class="footer">
+      <div class="container footer__inner">
+        <p>&copy; <span id="year">2026</span> Andrew Ayad Wadie</p>
+      </div>
     </footer>
 
-    <!-- Scripts -->
-    <script src="js/script.js"></script>
-</body>
+    <div
+      class="visually-hidden"
+      id="live-region"
+      role="status"
+      aria-live="polite"
+    ></div>
 
+    <script src="js/data.js"></script>
+    <script src="js/main.js" defer></script>
+  </body>
 </html>
