@@ -1,2 +1,10 @@
 # Claude Code agent folder — may contain credentials or local settings
 .claude/
+
+# Playwright MCP session output
+.playwright-mcp/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
