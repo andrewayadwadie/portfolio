@@ -1,0 +1,687 @@
+/* ==========================================================================
+   MOTION
+   Every animation on the site: reveals, landing intro and background,
+   control states, navigation chrome, theme transition.
+   Contract: specs/002-cv-motion-redesign/contracts/dom-motion.contract.md
+   Decisions: specs/002-cv-motion-redesign/research.md R4–R11, R14
+
+   Invariant: every hidden starting style is gated on html.js-motion or
+   html.intro-*. Without those classes the page is fully visible and static.
+   Only transform, opacity and clip-path animate (no layout shift).
+   ========================================================================== */
+@layer motion {
+  /* ------------------------------------------------------------------------
+     1. Landing background: drifting gradient blobs + grain (R8)
+     Blob alphas are gated by check-contrast.py (it reads these four values).
+     ------------------------------------------------------------------------ */
+  :root {
+    --blob-green: 74 222 155;
+    --blob-warm: 201 155 112;
+    --blob-alpha-green: 0.22;
+    --blob-alpha-warm: 0.26;
+    --grain-opacity: 0.06;
+  }
+
+  [data-theme="light"] {
+    --blob-green: 15 107 69;
+    --blob-warm: 122 83 52;
+    --blob-alpha-green: 0.18;
+    --blob-alpha-warm: 0.18;
+    --grain-opacity: 0.04;
+  }
+
+  .hero__bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .blob {
+    position: absolute;
+    width: min(62vmax, 900px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(
+      closest-side,
+      rgb(var(--blob-green) / var(--blob-alpha-green)),
+      rgb(var(--blob-green) / 0)
+    );
+    will-change: transform;
+    animation: drift-1 18s var(--ease-in-out) infinite alternate;
+  }
+
+  .blob--1 {
+    top: -30%;
+    left: -18%;
+  }
+
+  .blob--2 {
+    top: 10%;
+    right: -25%;
+    width: min(54vmax, 780px);
+    background: radial-gradient(
+      closest-side,
+      rgb(var(--blob-warm) / var(--blob-alpha-warm)),
+      rgb(var(--blob-warm) / 0)
+    );
+    animation-name: drift-2;
+    animation-duration: 24s;
+  }
+
+  .blob--3 {
+    bottom: -45%;
+    left: 25%;
+    width: min(48vmax, 700px);
+    animation-name: drift-3;
+    animation-duration: 30s;
+  }
+
+  /* Grain: an inline feTurbulence tile, no request. */
+  .hero__bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: var(--grain-opacity);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 160px 160px;
+  }
+
+  html.bg-paused .blob {
+    animation-play-state: paused;
+  }
+
+  @keyframes drift-1 {
+    to {
+      transform: translate3d(14vw, 10vh, 0) scale(1.12);
+    }
+  }
+
+  @keyframes drift-2 {
+    to {
+      transform: translate3d(-12vw, 14vh, 0) scale(0.9);
+    }
+  }
+
+  @keyframes drift-3 {
+    to {
+      transform: translate3d(-10vw, -16vh, 0) scale(1.15);
+    }
+  }
+
+  /* ------------------------------------------------------------------------
+     2. Landing intro (R9). Classes set pre-paint by the <head> script.
+     Full: once per session, everything interactive by 1.2s.
+     ------------------------------------------------------------------------ */
+  .hero__title .w {
+    display: inline-block;
+    overflow: clip;
+    padding-bottom: 0.12em;
+    margin-bottom: -0.12em;
+    vertical-align: top;
+  }
+
+  .hero__title .w > span {
+    display: inline-block;
+  }
+
+  html.intro-full .nav {
+    animation: intro-drop 700ms var(--ease-out) 200ms both;
+  }
+
+  html.intro-full .hero__portrait {
+    animation: intro-wipe var(--dur-4) var(--ease-out) both;
+  }
+
+  html.intro-full .hero__portrait img {
+    animation: intro-settle var(--dur-4) var(--ease-out) both;
+  }
+
+  html.intro-full .hero__title .w > span {
+    animation: intro-word 800ms var(--ease-out) calc(100ms + var(--w, 0) * 90ms) both;
+  }
+
+  html.intro-full .hero__headline {
+    animation: intro-rise 600ms var(--ease-out) 350ms both;
+  }
+
+  html.intro-full .hero__contact li {
+    animation: intro-rise 500ms var(--ease-out) calc(450ms + var(--i, 0) * 40ms) both;
+  }
+
+  html.intro-full .hero__actions .btn {
+    animation: intro-rise 500ms var(--ease-out) calc(600ms + var(--i, 0) * 80ms) both;
+  }
+
+  html.intro-short .hero__grid {
+    animation: intro-rise 450ms var(--ease-out) both;
+  }
+
+  /* Skip: the first pointerdown / keydown jumps everything to its end state. */
+  html.intro-done .nav,
+  html.intro-done .hero__portrait,
+  html.intro-done .hero__portrait img,
+  html.intro-done .hero__title .w > span,
+  html.intro-done .hero__headline,
+  html.intro-done .hero__contact li,
+  html.intro-done .hero__actions .btn,
+  html.intro-done .hero__grid {
+    animation: none;
+  }
+
+  @keyframes intro-drop {
+    from {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+  }
+
+  @keyframes intro-wipe {
+    from {
+      clip-path: inset(0 0 100% 0);
+    }
+    to {
+      clip-path: inset(0);
+    }
+  }
+
+  @keyframes intro-settle {
+    from {
+      transform: scale(1.08);
+    }
+  }
+
+  @keyframes intro-word {
+    from {
+      transform: translateY(110%);
+    }
+  }
+
+  @keyframes intro-rise {
+    from {
+      opacity: 0;
+      transform: translateY(var(--rise));
+    }
+  }
+
+  /* ------------------------------------------------------------------------
+     3. Scroll reveals (R4, R5). js/motion.js adds html.js-motion, sets --i,
+     splits mask headings, and adds .is-visible then .is-settled per group.
+     Reveal transitions only exist until the group settles, so hover states
+     afterwards use their own (undelayed) transitions.
+     ------------------------------------------------------------------------ */
+  html.js-motion [data-reveal-group]:not(.is-settled) [data-reveal] {
+    --delay: calc(min(var(--i, 0), var(--stagger-cap)) * var(--stagger));
+  }
+
+  /* fade-up */
+  html.js-motion [data-reveal-group]:not(.is-visible) [data-reveal="fade-up"] {
+    opacity: 0;
+    transform: translateY(var(--rise));
+  }
+
+  html.js-motion [data-reveal-group]:not(.is-settled) [data-reveal="fade-up"] {
+    transition:
+      opacity var(--dur-3) var(--ease-out) var(--delay),
+      transform var(--dur-3) var(--ease-out) var(--delay);
+  }
+
+  /* mask: words rise out of a clipped line */
+  [data-reveal="mask"] .w {
+    display: inline-block;
+    overflow: clip;
+    padding-bottom: 0.12em;
+    margin-bottom: -0.12em;
+    vertical-align: top;
+  }
+
+  [data-reveal="mask"] .w > span {
+    display: inline-block;
+  }
+
+  html.js-motion [data-reveal-group]:not(.is-visible) [data-reveal="mask"] .w > span {
+    transform: translateY(110%);
+  }
+
+  html.js-motion [data-reveal-group]:not(.is-settled) [data-reveal="mask"] .w > span {
+    transition: transform var(--dur-4) var(--ease-out)
+      calc(var(--delay) + min(var(--w, 0), 10) * 45ms);
+  }
+
+  /* clip: image wipe + settle */
+  html.js-motion [data-reveal-group]:not(.is-visible) [data-reveal="clip"] {
+    clip-path: inset(0 0 100% 0);
+  }
+
+  html.js-motion [data-reveal-group]:not(.is-visible) [data-reveal="clip"] img {
+    transform: scale(1.08);
+  }
+
+  html.js-motion [data-reveal-group]:not(.is-settled) [data-reveal="clip"] {
+    transition: clip-path var(--dur-4) var(--ease-out) var(--delay);
+  }
+
+  html.js-motion [data-reveal-group]:not(.is-settled) [data-reveal="clip"] img {
+    transition: transform var(--dur-4) var(--ease-out) var(--delay);
+  }
+
+  /* line: rules draw in from their origin */
+  html.js-motion [data-reveal-group]:not(.is-visible) [data-reveal="line"] {
+    transform: scaleX(0);
+  }
+
+  html.js-motion [data-reveal-group]:not(.is-visible) .job__rail[data-reveal="line"] {
+    transform: scaleY(0);
+  }
+
+  html.js-motion [data-reveal-group]:not(.is-settled) [data-reveal="line"] {
+    transition: transform var(--dur-4) var(--ease-in-out) var(--delay);
+  }
+
+  /* ------------------------------------------------------------------------
+     4. Control states (R11). Every hover has a matching :focus-visible.
+     ------------------------------------------------------------------------ */
+  .btn {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    transition:
+      background-color var(--dur-1) ease,
+      border-color var(--dur-1) ease,
+      color var(--dur-1) ease,
+      box-shadow var(--dur-2) var(--ease-out),
+      transform var(--dur-2) var(--ease-out);
+  }
+
+  /* Fill sweep from the left */
+  .btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--accent-soft);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--dur-2) var(--ease-out);
+  }
+
+  .btn:hover,
+  .btn:focus-visible {
+    border-color: var(--accent);
+    background: transparent;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-2);
+  }
+
+  .btn:hover::before,
+  .btn:focus-visible::before {
+    transform: scaleX(1);
+  }
+
+  .btn:active {
+    transform: translateY(0) scale(0.97);
+    box-shadow: var(--shadow-1);
+    transition-duration: var(--dur-1);
+  }
+
+  .btn--icon:hover,
+  .btn--icon:focus-visible {
+    transform: translateY(-1px);
+  }
+
+  .btn--primary::before {
+    background: linear-gradient(
+      105deg,
+      transparent 30%,
+      rgb(255 255 255 / 0.28) 50%,
+      transparent 70%
+    );
+    transform: translateX(-110%);
+  }
+
+  .btn--primary:hover,
+  .btn--primary:focus-visible {
+    background: var(--accent);
+    filter: none;
+  }
+
+  .btn--primary:hover::before,
+  .btn--primary:focus-visible::before {
+    transform: translateX(110%);
+    transition-duration: 700ms;
+  }
+
+  /* Animated focus ring: offset closes from 6px to 2px */
+  :focus-visible {
+    animation: focus-ring var(--dur-2) var(--ease-out);
+  }
+
+  @keyframes focus-ring {
+    from {
+      outline-offset: 6px;
+      outline-color: transparent;
+    }
+  }
+
+  /* Theme toggle icon spins in on change */
+  #theme-toggle .icon {
+    transition: transform var(--dur-3) var(--ease-out);
+  }
+
+  #theme-toggle[aria-pressed="true"] .icon {
+    transform: rotate(180deg);
+  }
+
+  /* Nav links: underline grows from the left */
+  .nav__list a::after {
+    content: "";
+    position: absolute;
+    left: var(--space-3);
+    right: var(--space-3);
+    bottom: 4px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--dur-2) var(--ease-out);
+  }
+
+  .nav__list a:hover::after,
+  .nav__list a:focus-visible::after {
+    transform: scaleX(1);
+  }
+
+  .nav__list a[aria-current="true"]::after {
+    transform: scaleX(0);
+  }
+
+  /* Sliding active pill (R6). Positioned by scroll-spy via --pill-x/-w. */
+  .nav__pill {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    height: 36px;
+    width: var(--pill-w, 0px);
+    margin-top: -18px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+    opacity: 0;
+    transform: translateX(var(--pill-x, 0px));
+    pointer-events: none;
+    transition:
+      transform var(--dur-2) var(--ease-in-out),
+      width var(--dur-2) var(--ease-in-out),
+      opacity var(--dur-2) ease;
+  }
+
+  .nav__pill.is-active {
+    opacity: 1;
+  }
+
+  /* Cards, chips, products, channels: lift + accent border */
+  .card,
+  .chip,
+  .product,
+  .channel,
+  .stat {
+    transition:
+      transform var(--dur-2) var(--ease-out),
+      border-color var(--dur-1) ease,
+      background-color var(--dur-1) ease,
+      box-shadow var(--dur-2) var(--ease-out);
+  }
+
+  .card:hover,
+  .product:hover,
+  .channel:hover,
+  .channel:focus-within,
+  .stat:hover,
+  a.product:focus-visible {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    box-shadow: var(--shadow-2);
+  }
+
+  .chip:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    color: var(--text);
+  }
+
+  .channel__icon {
+    transition: transform var(--dur-2) var(--ease-out);
+  }
+
+  .channel:hover .channel__icon,
+  .channel:focus-within .channel__icon {
+    transform: scale(1.08) rotate(-4deg);
+  }
+
+  .channel__copy .icon {
+    transition: transform var(--dur-2) var(--ease-out);
+  }
+
+  .channel__copy.is-done .icon {
+    animation: icon-pop var(--dur-2) var(--ease-out);
+  }
+
+  @keyframes icon-pop {
+    from {
+      transform: scale(0.4) rotate(-30deg);
+      opacity: 0;
+    }
+  }
+
+  @media (hover: none) {
+    .btn:hover,
+    .card:hover,
+    .product:hover,
+    .channel:hover,
+    .stat:hover,
+    .chip:hover {
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  /* ------------------------------------------------------------------------
+     5. Mobile menu: panel wipes down, links stagger in (R11)
+     ------------------------------------------------------------------------ */
+  @media (max-width: 720px) {
+    .nav__list {
+      transform: none;
+      clip-path: inset(0 0 100% 0);
+      visibility: hidden;
+      transition:
+        clip-path var(--dur-2) var(--ease-in-out),
+        visibility 0s linear var(--dur-2);
+    }
+
+    .nav__list[data-open="true"] {
+      clip-path: inset(0);
+      visibility: visible;
+      transition:
+        clip-path var(--dur-2) var(--ease-in-out),
+        visibility 0s;
+    }
+
+    .nav__list li {
+      opacity: 0;
+      transform: translateY(-8px);
+      transition:
+        opacity var(--dur-2) var(--ease-out),
+        transform var(--dur-2) var(--ease-out);
+    }
+
+    .nav__list[data-open="true"] li {
+      opacity: 1;
+      transform: none;
+      transition-delay: calc(80ms + var(--i, 0) * 40ms);
+    }
+
+    #nav-toggle .icon {
+      transition: transform var(--dur-2) var(--ease-out);
+    }
+
+    #nav-toggle[aria-expanded="true"] .icon {
+      transform: rotate(90deg);
+    }
+
+    /* R12/FR-024: shorter travel, smaller blobs, never wider than the page */
+    .blob {
+      width: 80vmax;
+    }
+
+    .blob--2,
+    .blob--3 {
+      width: 64vmax;
+    }
+
+    html.js-motion [data-reveal-group]:not(.is-visible) [data-reveal="clip"] img {
+      transform: scale(1.04);
+    }
+  }
+
+  /* ------------------------------------------------------------------------
+     6. Scroll progress, back-to-top, toast (R7, R11)
+     ------------------------------------------------------------------------ */
+  .scroll-progress {
+    position: fixed;
+    top: var(--nav-h);
+    left: 0;
+    right: 0;
+    z-index: 49;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(var(--progress, 0));
+    transform-origin: left;
+    pointer-events: none;
+  }
+
+  .to-top {
+    position: fixed;
+    right: var(--space-5);
+    bottom: var(--space-5);
+    z-index: 40;
+    width: 44px;
+    height: 44px;
+    background: var(--surface-raised);
+    box-shadow: var(--shadow-2);
+    opacity: 0;
+    transform: translateY(16px);
+    pointer-events: none;
+  }
+
+  .to-top.is-shown {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .to-top.is-shown:hover,
+  .to-top.is-shown:focus-visible {
+    transform: translateY(-2px);
+  }
+
+  .to-top[hidden] {
+    display: none;
+  }
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: var(--space-6);
+    z-index: 60;
+    padding: var(--space-3) var(--space-5);
+    background: var(--surface-raised);
+    color: var(--text);
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    box-shadow: var(--shadow-3);
+    font-size: var(--step--1);
+    font-weight: 500;
+    opacity: 0;
+    transform: translate(-50%, 24px);
+    pointer-events: none;
+    transition:
+      opacity var(--dur-2) var(--ease-out),
+      transform var(--dur-2) var(--ease-out);
+  }
+
+  .toast:empty {
+    padding: 0;
+    border-width: 0;
+  }
+
+  .toast.is-shown {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+
+  /* ------------------------------------------------------------------------
+     7. Theme switch: circular reveal from the toggle (R11)
+     ------------------------------------------------------------------------ */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
+  ::view-transition-new(root) {
+    animation: theme-reveal var(--dur-3) var(--ease-in-out);
+  }
+
+  @keyframes theme-reveal {
+    from {
+      clip-path: circle(0 at var(--vt-x, 50%) var(--vt-y, 0));
+    }
+    to {
+      clip-path: circle(var(--vt-r, 150vmax) at var(--vt-x, 50%) var(--vt-y, 0));
+    }
+  }
+
+  /* ------------------------------------------------------------------------
+     8. Reduced motion (R14, SC-007): content final, nothing moves.
+     ------------------------------------------------------------------------ */
+  @media (prefers-reduced-motion: reduce) {
+    html.js-motion [data-reveal-group] [data-reveal],
+    html.js-motion [data-reveal-group] [data-reveal] .w > span,
+    html.js-motion [data-reveal-group] [data-reveal] img {
+      opacity: 1;
+      transform: none;
+      clip-path: none;
+      transition: none;
+    }
+
+    .blob,
+    html[class*="intro-"] .nav,
+    html[class*="intro-"] .hero__portrait,
+    html[class*="intro-"] .hero__portrait img,
+    html[class*="intro-"] .hero__title .w > span,
+    html[class*="intro-"] .hero__headline,
+    html[class*="intro-"] .hero__contact li,
+    html[class*="intro-"] .hero__actions .btn,
+    html[class*="intro-"] .hero__grid,
+    :focus-visible {
+      animation: none;
+    }
+
+    ::view-transition-new(root),
+    ::view-transition-old(root) {
+      animation: none;
+    }
+
+    .btn:hover,
+    .btn:focus-visible,
+    .card:hover,
+    .product:hover,
+    .channel:hover,
+    .stat:hover,
+    .chip:hover,
+    .to-top.is-shown:hover {
+      transform: none;
+    }
+  }
+}

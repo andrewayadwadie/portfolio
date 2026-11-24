@@ -8,3 +8,7 @@
 .DS_Store
 Thumbs.db
 *.swp
+
+# Python check scripts
+__pycache__/
+*.pyc

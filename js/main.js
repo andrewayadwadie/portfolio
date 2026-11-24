@@ -1,5 +1,9 @@
-/* Reads SITE_DATA (js/data.js), renders it, wires theme, nav, reveal, copy.
- * Contract: specs/001-cv-portfolio-redesign/contracts/dom.contract.md
+/* Reads SITE_DATA (js/data.js), renders it, wires theme, mobile nav and copy.
+ * Contracts: specs/002-cv-motion-redesign/contracts/ (site-data, dom-motion)
+ *
+ * Content only. Motion (reveal, routing, intro, progress) lives in
+ * js/motion.js, which starts on the
+ * `site:rendered` event dispatched at the end of boot.
  *
  * Never innerHTML. Every string from SITE_DATA goes through textContent.
  */
@@ -18,14 +22,29 @@
     return node;
   }
 
+  // Marks a node with a reveal effect (dom-motion contract, "Motion attribute API").
+  function reveal(node, effect) {
+    node.setAttribute("data-reveal", effect);
+    return node;
+  }
+
+  function group(node) {
+    node.setAttribute("data-reveal-group", "");
+    return node;
+  }
+
+  function setSymbol(use, symbolId) {
+    use.setAttribute("href", symbolId);
+    use.setAttributeNS(XLINK_NS, "xlink:href", symbolId);
+  }
+
   function icon(symbolId, className) {
     var svg = document.createElementNS(SVG_NS, "svg");
     svg.setAttribute("class", className || "icon");
     svg.setAttribute("aria-hidden", "true");
     svg.setAttribute("focusable", "false");
     var use = document.createElementNS(SVG_NS, "use");
-    use.setAttribute("href", symbolId);
-    use.setAttributeNS(XLINK_NS, "xlink:href", symbolId);
+    setSymbol(use, symbolId);
     svg.appendChild(use);
     return svg;
   }
@@ -38,29 +57,80 @@
     return a;
   }
 
-  function sectionHead(container, eyebrow, heading, lead) {
-    var head = el("div", "section__head");
-    head.appendChild(el("span", "section__eyebrow", eyebrow));
-    head.appendChild(el("h2", null, heading));
-    if (lead) head.appendChild(el("p", "section__lead", lead));
+  function sectionIndex(id) {
+    for (var i = 0; i < SITE_DATA.sections.length; i++) {
+      if (SITE_DATA.sections[i].id === id) return i;
+    }
+    return -1;
+  }
+
+  // Section head: decorative zero-padded index + the CV section name as h2.
+  function sectionHead(container, id) {
+    var i = sectionIndex(id);
+    var meta = SITE_DATA.sections[i];
+    var head = group(el("div", "section__head"));
+
+    var index = reveal(el("span", "section__index", String(i + 1).padStart(2, "0")), "fade-up");
+    index.setAttribute("aria-hidden", "true");
+    head.appendChild(index);
+
+    var h2 = reveal(el("h2", null, meta.heading), "mask");
+    h2.id = id + "-title";
+    h2.tabIndex = -1;
+    head.appendChild(h2);
+
     container.appendChild(head);
   }
 
   function sectionShell(section) {
     var container = el("div", "container");
     section.appendChild(container);
+    sectionHead(container, section.id);
     return container;
   }
 
+  function chipList(items) {
+    var list = el("ul", "chip-list");
+    items.forEach(function (text) {
+      var li = reveal(el("li"), "fade-up");
+      li.appendChild(el("span", "chip", text));
+      list.appendChild(li);
+    });
+    return list;
+  }
+
+  /* -- nav ------------------------------------------------------------------ */
+
+  function renderNav() {
+    var list = document.getElementById("nav-list");
+    if (!list) return;
+
+    SITE_DATA.sections.forEach(function (section, i) {
+      var li = el("li");
+      li.style.setProperty("--i", String(i));
+      var a = el("a", null, section.nav);
+      a.href = "#" + section.id;
+      a.setAttribute("data-nav", "");
+      li.appendChild(a);
+      list.appendChild(li);
+    });
+
+    // The sliding active indicator. Positioned by js/motion.js scroll-spy.
+    var pill = el("li", "nav__pill");
+    pill.setAttribute("aria-hidden", "true");
+    pill.setAttribute("role", "presentation");
+    list.appendChild(pill);
+  }
+
   /* -- product rendering ---------------------------------------------------
-   * The one conditional the whole data structure exists for.
-   * A string url produces an anchor. A null url produces plain text — no
+   * A string url produces an anchor. A null url produces plain text: no
    * href="#", no disabled state, no hint that a link was ever contemplated.
    */
   function renderProduct(product) {
     var hasLink = typeof product.url === "string" && product.url.length > 0;
     var node = hasLink ? externalAnchor(product.url) : document.createElement("div");
     node.className = "product";
+    reveal(node, "fade-up");
 
     var name = el("span", "product__name");
     name.appendChild(document.createTextNode(product.name));
@@ -75,33 +145,32 @@
 
   function renderExperience(section) {
     var container = sectionShell(section);
-    sectionHead(
-      container,
-      "Experience",
-      "Where I have shipped",
-      "Three teams, ten production applications, across government, telecom, e-commerce, and booking."
-    );
+    var timeline = el("div", "timeline");
 
     SITE_DATA.experience.forEach(function (job) {
-      var article = el("article", "job");
+      var article = group(el("article", "job"));
+
+      var rail = reveal(el("span", "job__rail"), "line");
+      rail.setAttribute("aria-hidden", "true");
+      article.appendChild(rail);
 
       var head = el("div", "job__head");
-      head.appendChild(el("h3", "job__company", job.company));
-      head.appendChild(el("span", "job__dates", job.start + " — " + job.end));
+      head.appendChild(reveal(el("h3", "job__company", job.company), "mask"));
+      head.appendChild(reveal(el("span", "job__dates", job.start + " – " + job.end), "fade-up"));
       article.appendChild(head);
 
-      article.appendChild(el("p", "job__role", job.role));
-      article.appendChild(el("p", "job__location", job.location));
+      article.appendChild(reveal(el("p", "job__role", job.role), "fade-up"));
+      article.appendChild(reveal(el("p", "job__location", job.location), "fade-up"));
 
       var bullets = el("ul", "job__bullets");
       job.bullets.forEach(function (text) {
-        bullets.appendChild(el("li", null, text));
+        bullets.appendChild(reveal(el("li", null, text), "fade-up"));
       });
       article.appendChild(bullets);
 
       if (job.products.length) {
         var wrap = el("div", "products");
-        wrap.appendChild(el("p", "products__label", "Key products"));
+        wrap.appendChild(reveal(el("p", "products__label", "Key products"), "fade-up"));
         var list = el("div", "products__list");
         job.products.forEach(function (product) {
           list.appendChild(renderProduct(product));
@@ -110,188 +179,131 @@
         article.appendChild(wrap);
       }
 
-      container.appendChild(article);
-    });
-  }
-
-  function renderSideProjects(section) {
-    var container = sectionShell(section);
-    sectionHead(
-      container,
-      "Independent Products",
-      "Things I built and shipped alone",
-      "Owned end to end: product, architecture, backend, monetization, and store submission."
-    );
-
-    var grid = el("div", "projects");
-
-    SITE_DATA.sideProjects.forEach(function (project) {
-      var card = el("article", "project");
-
-      var header = el("div");
-      header.appendChild(el("h3", "project__name", project.name));
-      header.appendChild(el("p", "project__tagline", project.tagline));
-      header.appendChild(el("p", "project__role", project.role));
-      card.appendChild(header);
-
-      var chips = el("ul", "chip-list");
-      project.stack.forEach(function (tech) {
-        var li = el("li");
-        li.appendChild(el("span", "chip", tech));
-        chips.appendChild(li);
-      });
-      card.appendChild(chips);
-
-      var bullets = el("ul", "project__bullets");
-      project.bullets.forEach(function (text) {
-        bullets.appendChild(el("li", null, text));
-      });
-      card.appendChild(bullets);
-
-      // Same null-url rule as products: no link means no affordance at all.
-      var hasLink = typeof project.url === "string" && project.url.length > 0;
-      if (hasLink) {
-        var foot = el("div", "project__foot");
-        var link = externalAnchor(project.url);
-        link.className = "link";
-        link.appendChild(document.createTextNode(project.urlLabel || "Visit"));
-        link.appendChild(icon("#icon-external-link"));
-        foot.appendChild(link);
-        card.appendChild(foot);
-      }
-
-      grid.appendChild(card);
+      timeline.appendChild(article);
     });
 
-    container.appendChild(grid);
+    container.appendChild(timeline);
   }
 
   function renderSkills(section) {
     var container = sectionShell(section);
-    sectionHead(container, "Skills", "The toolkit");
-
-    var competencies = el("div", "competencies");
-    competencies.appendChild(el("p", "products__label", "Core competencies"));
-    var compChips = el("ul", "chip-list");
-    SITE_DATA.competencies.forEach(function (item) {
-      var li = el("li");
-      li.appendChild(el("span", "chip", item));
-      compChips.appendChild(li);
-    });
-    competencies.appendChild(compChips);
-    container.appendChild(competencies);
-
     var grid = el("div", "skills");
-    SITE_DATA.skills.forEach(function (group) {
-      var card = el("div", "card");
-      card.appendChild(el("h3", "skillgroup__name", group.category));
-      var chips = el("ul", "chip-list");
-      group.skills.forEach(function (skill) {
-        var li = el("li");
-        li.appendChild(el("span", "chip", skill));
-        chips.appendChild(li);
-      });
-      card.appendChild(chips);
+
+    SITE_DATA.skills.forEach(function (skillGroup) {
+      var card = group(el("div", "card skillgroup"));
+      card.appendChild(reveal(el("h3", "skillgroup__name", skillGroup.category), "mask"));
+      card.appendChild(chipList(skillGroup.skills));
       grid.appendChild(card);
     });
+
     container.appendChild(grid);
   }
 
   function renderEducation(section) {
     var container = sectionShell(section);
-    sectionHead(container, "Education", "Where it started");
-
-    var grid = el("div", "edu-grid");
-
-    var eduCard = el("div", "card");
     var edu = SITE_DATA.education;
-    eduCard.appendChild(el("h3", "edu__degree", edu.degree));
-    eduCard.appendChild(
-      el("p", "edu__meta", edu.faculty + ", " + edu.institution + " · " + edu.year)
-    );
+
+    var card = group(el("div", "card edu"));
+    card.appendChild(reveal(el("h3", "edu__degree", edu.degree), "mask"));
+    card.appendChild(reveal(el("p", "edu__meta", edu.faculty + ", " + edu.institution), "fade-up"));
+    card.appendChild(reveal(el("p", "edu__year", "Graduated " + edu.graduated), "fade-up"));
 
     var facts = el("dl", "edu__facts");
     [
-      ["Graduation project", edu.project],
+      ["Graduation Project", edu.project],
       ["Grade", edu.grade],
     ].forEach(function (pair) {
-      var row = el("div");
+      var row = reveal(el("div"), "fade-up");
       row.appendChild(el("dt", null, pair[0]));
       row.appendChild(el("dd", null, pair[1]));
       facts.appendChild(row);
     });
-    eduCard.appendChild(facts);
-    grid.appendChild(eduCard);
+    card.appendChild(facts);
 
-    var langCard = el("div", "card");
-    langCard.appendChild(el("h3", "skillgroup__name", "Languages"));
-    var langs = el("ul", "langs");
+    container.appendChild(card);
+  }
+
+  function renderLanguages(section) {
+    var container = sectionShell(section);
+    var grid = el("ul", "langs-section");
+
     SITE_DATA.languages.forEach(function (lang) {
-      var li = el("li", "lang");
-      li.appendChild(el("span", null, lang.language));
-      li.appendChild(el("span", "lang__level", lang.level));
-      langs.appendChild(li);
+      var card = group(el("li", "card lang-card"));
+      card.appendChild(reveal(el("h3", "lang-card__name", lang.language), "mask"));
+      card.appendChild(reveal(el("p", "lang-card__level", lang.level), "fade-up"));
+      grid.appendChild(card);
     });
-    langCard.appendChild(langs);
-    grid.appendChild(langCard);
 
     container.appendChild(grid);
   }
 
   function renderContact(section) {
     var container = sectionShell(section);
-    sectionHead(
-      container,
-      "Contact",
-      "Let's build something",
-      "Reach me on any of these. Email opens in your own mail client — there is no form here."
-    );
+    var grid = group(el("div", "contact-grid"));
 
-    var grid = el("div", "contact-grid");
-
-    var portrait = el("div", "contact__portrait");
+    var portrait = reveal(el("div", "contact__portrait"), "clip");
     var img = document.createElement("img");
     img.src = SITE_DATA.profile.photo;
     img.alt = SITE_DATA.profile.photoAlt;
     img.width = 836;
     img.height = 1254;
+    img.loading = "lazy";
     portrait.appendChild(img);
     grid.appendChild(portrait);
 
+    var side = el("div", "contact__side");
     var list = el("ul", "channels");
 
     SITE_DATA.contact.forEach(function (channel) {
-      var li = el("li", "channel");
+      var li = reveal(el("li", "channel"), "fade-up");
+      var isMail = channel.href.indexOf("mailto:") === 0;
 
-      var link = channel.href.indexOf("mailto:") === 0
-        ? document.createElement("a")
-        : externalAnchor(channel.href);
-      if (channel.href.indexOf("mailto:") === 0) link.href = channel.href;
+      var link = isMail ? document.createElement("a") : externalAnchor(channel.href);
+      if (isMail) link.href = channel.href;
       link.className = "channel__link";
 
       var iconWrap = el("span", "channel__icon");
       iconWrap.appendChild(icon(channel.icon));
       link.appendChild(iconWrap);
 
-      var textWrap = el("span");
+      var textWrap = el("span", "channel__text");
       textWrap.appendChild(el("span", "channel__label", channel.label));
       textWrap.appendChild(el("span", "channel__value", channel.value));
       link.appendChild(textWrap);
 
       li.appendChild(link);
-
-      if (channel.copyable) {
-        li.appendChild(buildCopyButton(channel.value));
-      }
-
+      if (channel.copyable) li.appendChild(buildCopyButton(channel.value));
       list.appendChild(li);
     });
 
-    grid.appendChild(list);
+    side.appendChild(list);
+
+    var actions = reveal(el("div", "contact__actions"), "fade-up");
+    var cv = externalAnchor(SITE_DATA.profile.cv);
+    cv.className = "btn btn--primary";
+    cv.appendChild(icon("#icon-download"));
+    cv.appendChild(document.createTextNode("Download CV"));
+    actions.appendChild(cv);
+    side.appendChild(actions);
+
+    grid.appendChild(side);
     container.appendChild(grid);
   }
 
-  /* -- copy to clipboard ---------------------------------------------------- */
+  /* -- copy to clipboard + toast -------------------------------------------- */
+
+  var toastTimer = null;
+
+  function showToast(message) {
+    var toast = document.getElementById("toast");
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add("is-shown");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () {
+      toast.classList.remove("is-shown");
+    }, 2000);
+  }
 
   function buildCopyButton(value) {
     var button = el("button", "btn btn--icon channel__copy");
@@ -303,14 +315,12 @@
       copyText(value).then(function (ok) {
         if (!ok) return;
         var use = button.querySelector("use");
-        use.setAttribute("href", "#icon-check");
-        use.setAttributeNS(XLINK_NS, "xlink:href", "#icon-check");
+        setSymbol(use, "#icon-check");
         button.classList.add("is-done");
-        announce("Email address copied");
+        showToast("Email address copied");
 
         setTimeout(function () {
-          use.setAttribute("href", "#icon-copy");
-          use.setAttributeNS(XLINK_NS, "xlink:href", "#icon-copy");
+          setSymbol(use, "#icon-copy");
           button.classList.remove("is-done");
         }, 2000);
       });
@@ -351,13 +361,11 @@
     return ok;
   }
 
-  function announce(message) {
-    var region = document.getElementById("live-region");
-    if (region) region.textContent = message;
-  }
-
-  /* -- theme ---------------------------------------------------------------- */
-
+  /* -- theme ----------------------------------------------------------------
+   * The click dispatches a cancelable `theme:toggle-request` carrying the
+   * apply function. js/motion.js may take it over to run the switch inside a
+   * view transition; if nobody cancels it, the theme switches directly.
+   */
   function initTheme() {
     var button = document.getElementById("theme-toggle");
     var use = document.getElementById("theme-icon");
@@ -365,7 +373,7 @@
 
     sync(document.documentElement.dataset.theme);
 
-    button.addEventListener("click", function () {
+    function apply() {
       var next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
       document.documentElement.dataset.theme = next;
       try {
@@ -375,18 +383,21 @@
         // visit; the next one falls back to the OS preference.
       }
       sync(next);
+    }
+
+    button.addEventListener("click", function () {
+      var request = new CustomEvent("theme:toggle-request", {
+        cancelable: true,
+        detail: { apply: apply, origin: button },
+      });
+      if (document.dispatchEvent(request)) apply();
     });
 
     function sync(theme) {
       var isLight = theme === "light";
-      var symbol = isLight ? "#icon-sun" : "#icon-moon";
-      use.setAttribute("href", symbol);
-      use.setAttributeNS(XLINK_NS, "xlink:href", symbol);
+      setSymbol(use, isLight ? "#icon-sun" : "#icon-moon");
       button.setAttribute("aria-pressed", String(isLight));
-      button.setAttribute(
-        "aria-label",
-        isLight ? "Switch to dark theme" : "Switch to light theme"
-      );
+      button.setAttribute("aria-label", isLight ? "Switch to dark theme" : "Switch to light theme");
     }
   }
 
@@ -402,9 +413,7 @@
       list.dataset.open = String(open);
       toggle.setAttribute("aria-expanded", String(open));
       toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
-      var symbol = open ? "#icon-close" : "#icon-menu";
-      use.setAttribute("href", symbol);
-      use.setAttributeNS(XLINK_NS, "xlink:href", symbol);
+      setSymbol(use, open ? "#icon-close" : "#icon-menu");
     }
 
     setOpen(false);
@@ -425,50 +434,19 @@
     });
   }
 
-  /* -- reveal ---------------------------------------------------------------
-   * The .js-reveal class on <html> is what gates the initial-hidden styles.
-   * If this script never runs, the class is never added, the hidden rule never
-   * matches, and no section is stranded invisible.
-   */
-  function initReveal() {
-    var targets = document.querySelectorAll("[data-reveal]");
-
-    if (!("IntersectionObserver" in window)) {
-      targets.forEach(function (node) {
-        node.classList.add("is-visible");
-      });
-      return;
-    }
-
-    var observer = new IntersectionObserver(
-      function (entries) {
-        entries.forEach(function (entry) {
-          if (!entry.isIntersecting) return;
-          entry.target.classList.add("is-visible");
-          observer.unobserve(entry.target);
-        });
-      },
-      { threshold: 0.15, rootMargin: "0px 0px -10% 0px" }
-    );
-
-    targets.forEach(function (node) {
-      observer.observe(node);
-    });
-  }
-
   /* -- boot ------------------------------------------------------------------ */
 
   var RENDERERS = {
     experience: renderExperience,
-    sideProjects: renderSideProjects,
     skills: renderSkills,
     education: renderEducation,
+    languages: renderLanguages,
     contact: renderContact,
   };
 
-  document.documentElement.classList.add("js-reveal");
-
   document.addEventListener("DOMContentLoaded", function () {
+    renderNav();
+
     document.querySelectorAll("[data-render]").forEach(function (section) {
       var render = RENDERERS[section.dataset.render];
       if (render) render(section);
@@ -479,6 +457,8 @@
 
     initTheme();
     initNav();
-    initReveal();
+
+    // Hand off to js/motion.js (dom-motion contract, "Events").
+    document.dispatchEvent(new CustomEvent("site:rendered"));
   });
 })();
