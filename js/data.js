@@ -1,28 +1,46 @@
 /* Single source of truth for every word on the page.
- * Contract: specs/001-cv-portfolio-redesign/contracts/site-data.contract.md
+ * Source: files/Andrew_Ayad_Flutter_Developer_CV.docx (the PDF is its export).
+ * Contract: specs/002-cv-motion-redesign/contracts/site-data.contract.md
+ * Gate:     python3 specs/002-cv-motion-redesign/check-cv-sync.py
  *
- * To publish a product link, set its `url` from null to the listing URL.
- * Nothing else changes — no markup, no styles. A null url renders as plain
- * text with no link affordance, which is the correct state, not a gap.
+ * Every string here is the CV, word for word. Do not add claims the CV does
+ * not make. To publish a product link, set its `url` from null to the
+ * listing URL; a null url renders as plain text with no link affordance.
  */
 const SITE_DATA = Object.freeze({
   profile: {
     name: "Andrew Ayad Wadie",
-    title: "Senior Mobile Application Engineer",
-    subtitle: "Flutter Developer | Dart",
+    headline: "Senior Flutter Developer | Mobile Application Engineer | Dart",
     location: "Cairo, Egypt",
     summary:
-      "Senior Mobile Application Engineer with 5+ years of experience designing, building, and shipping 11+ production Flutter applications on Google Play and the App Store for government, telecom, fintech-adjacent payments, and booking domains. Expert in Clean Architecture, Bloc/Cubit state management, and performance optimization at enterprise scale, including mission-critical systems for the Saudi Ministry of Environment and Ministry of Agriculture. Pioneer of AI-assisted development workflows (Claude Code, OpenAI Codex, spec-driven development) that cut feature delivery and code review time by ~30%. Proven end-to-end ownership: architecture, CI/CD, store deployment, and post-release maintenance for apps serving thousands of active users.",
+      "Flutter developer with 5+ years of experience building and releasing 10 production Flutter applications on Google Play and the App Store for government, telecom, booking, and e-commerce clients. Works mainly with Clean Architecture, Bloc/Cubit, Dio/Retrofit, and GetIt/Injectable, with hands-on experience integrating payment gateways (PayFort, Paymob), Firebase, and Google Maps. Built government apps for the Saudi Ministry of Environment and Ministry of Agriculture, and handles the release cycle end to end: CI/CD builds, store submission, crash monitoring, and hotfixes. Uses AI-assisted development tools (Claude Code, OpenAI Codex, spec-driven development) in daily work.",
+    // Each value is stated in the summary above (research R2).
+    stats: [
+      { value: 5, suffix: "+", label: "Years building Flutter apps" },
+      { value: 10, suffix: "", label: "Production apps released" },
+      { value: 2, suffix: "", label: "Saudi ministries served" },
+    ],
     photo: "images/profile.jpg",
     photoAlt:
       "Andrew Ayad, seated with hands clasped, wearing a dark green shirt against a deep green backdrop",
     cv: "files/Andrew_Ayad_Flutter_Developer_CV.pdf",
   },
 
+  // CV section order. Nav, section index numbers and scroll-spy read this.
+  sections: [
+    { id: "summary", heading: "Professional Summary", nav: "Summary", render: null },
+    { id: "experience", heading: "Professional Experience", nav: "Experience", render: "experience" },
+    { id: "skills", heading: "Technical Skills", nav: "Skills", render: "skills" },
+    { id: "education", heading: "Education", nav: "Education", render: "education" },
+    { id: "languages", heading: "Languages", nav: "Languages", render: "languages" },
+    { id: "contact", heading: "Contact", nav: "Contact", render: "contact" },
+  ],
+
+  // CV header order.
   contact: [
     {
       kind: "whatsapp",
-      label: "WhatsApp",
+      label: "Phone / WhatsApp",
       value: "+20 114 567 8491",
       href: "https://wa.me/201145678491",
       icon: "#icon-whatsapp",
@@ -36,35 +54,26 @@ const SITE_DATA = Object.freeze({
       copyable: true,
     },
     {
+      kind: "website",
+      label: "Website",
+      value: "andrewayad.online",
+      href: "https://andrewayad.online",
+      icon: "#icon-globe",
+    },
+    {
       kind: "linkedin",
       label: "LinkedIn",
-      value: "andrew-ayad-58764315a",
+      value: "linkedin.com/in/andrew-ayad-58764315a",
       href: "https://linkedin.com/in/andrew-ayad-58764315a",
       icon: "#icon-linkedin",
     },
     {
       kind: "github",
       label: "GitHub",
-      value: "andrewayadwadie",
+      value: "github.com/andrewayadwadie",
       href: "https://github.com/andrewayadwadie",
       icon: "#icon-github",
     },
-  ],
-
-  competencies: [
-    "Cross-Platform Mobile Development",
-    "Flutter & Dart",
-    "Clean Architecture",
-    "SOLID Principles",
-    "State Management (Bloc, Provider, GetX)",
-    "RESTful API Integration",
-    "CI/CD Pipelines",
-    "Performance Optimization",
-    "Unit & Widget Testing",
-    "Agile/Scrum",
-    "Code Review & Mentoring",
-    "App Store & Google Play Release Management",
-    "AI-Assisted Software Development",
   ],
 
   experience: [
@@ -75,28 +84,17 @@ const SITE_DATA = Object.freeze({
       start: "Nov 2022",
       end: "Present",
       bullets: [
-        "Spearheaded development of 3 production Flutter applications across telecom self-service, restaurant reservations, and sports-court booking, serving thousands of monthly active users with in-app payment integration.",
-        "Re-architected legacy codebases to Clean Architecture with Bloc/Cubit, eliminating recurring performance bottlenecks and reducing UI jank and app startup time on low-end Android devices.",
-        "Introduced AI-assisted development workflows (Claude Code, OpenAI Codex, GitHub Spec Kit) and authored reusable AI agent skills adopted by the team, cutting feature development and code review cycles by ~30%.",
-        "Owned the full release lifecycle — versioning, staged rollouts, crash monitoring, and hotfixes — for live production apps on Google Play and the Apple App Store.",
-        "Partnered with product managers and UI/UX designers in Agile sprints to translate business requirements into shipped features, improving alignment between roadmap and releases.",
+        "Built and maintained 3 production Flutter applications for telecom self-service, restaurant and activity reservations, and padel court booking, with online payments integrated through PayFort and Paymob.",
+        "Refactored existing codebases to Clean Architecture with Bloc/Cubit, improving maintainability and reducing UI jank and startup time on low-end Android devices.",
+        "Set up CI/CD pipelines with GitHub Actions for automated builds, and wrote unit, bloc, and widget tests (bloc_test, mocktail) for core features.",
+        "Introduced AI-assisted development workflows (Claude Code, OpenAI Codex, GitHub Spec Kit) to the team and wrote reusable AI agent skills used in daily feature development.",
+        "Owned the release process for live apps on Google Play and the Apple App Store: versioning, staged rollouts, crash monitoring, and hotfixes.",
+        "Worked with product managers and UI/UX designers in Agile sprints to turn business requirements into shipped features.",
       ],
       products: [
-        {
-          name: "Noor App",
-          description: "Telecom bill payment and quota management",
-          url: null,
-        },
-        {
-          name: "Zabatnee",
-          description: "Restaurant and activity reservations with in-app payments",
-          url: null,
-        },
-        {
-          name: "IPadel",
-          description: "Padel court booking with integrated payments",
-          url: null,
-        },
+        { name: "Noor App", description: "telecom bill payment & quota management", url: null },
+        { name: "Zabatnee", description: "restaurant/activity reservations with in-app payments", url: null },
+        { name: "IPadel", description: "padel court booking with integrated payments", url: null },
       ],
     },
     {
@@ -106,31 +104,15 @@ const SITE_DATA = Object.freeze({
       start: "Jan 2022",
       end: "Nov 2022",
       bullets: [
-        "Delivered 4 mission-critical government applications for the Saudi Ministry of Environment and Ministry of Agriculture, featuring real-time data synchronization, geolocation services, and secure governmental API integration.",
-        "Met strict government compliance standards and tight deadlines through modular development, proactive stakeholder communication, and rigorous QA cycles.",
-        "Optimized state management with GetX, shipping high-performance apps with minimal memory leaks across live inspection and audit workflows.",
+        "Developed 3 government applications for the Saudi Ministry of Environment and Ministry of Agriculture, plus an e-commerce app (Arganzwina), with real-time data sync and integration with government APIs.",
+        "Built offline mode with data sync when connectivity returns, in-app photo and video capture with media upload, and map-based location tracking for field inspection workflows.",
+        "Implemented state management with GetX across live inspection and audit workflows.",
       ],
       products: [
-        {
-          name: "Livestock App",
-          description: "Location-based livestock tracking and inspection",
-          url: null,
-        },
-        {
-          name: "Environmental Reporting App",
-          description: "Citizen issue reporting with media attachments",
-          url: null,
-        },
-        {
-          name: "Quality Management App",
-          description: "Real-time audit logging",
-          url: null,
-        },
-        {
-          name: "Arganzwina",
-          description: "E-commerce with integrated payments",
-          url: null,
-        },
+        { name: "Livestock App", description: "location-based livestock tracking & inspection", url: null },
+        { name: "Environmental Reporting App", description: "citizen issue reporting with media attachments", url: null },
+        { name: "Quality Management App", description: "real-time audit logging", url: null },
+        { name: "Arganzwina", description: "e-commerce with integrated payments", url: null },
       ],
     },
     {
@@ -140,79 +122,28 @@ const SITE_DATA = Object.freeze({
       start: "Feb 2021",
       end: "Jan 2022",
       bullets: [
-        "Led full-lifecycle development of 3 production apps — from requirements analysis and UI prototyping to testing, deployment, and client handover.",
-        "Integrated Firebase (Firestore, Realtime Database, Cloud Functions, FCM) and Google ML Kit to deliver real-time features, push notifications, and on-device intelligence.",
-        "Introduced modular code practices and unit tests to existing codebases, improving reliability and reusability across projects.",
-        "Managed direct client communication, translating business needs into technical solutions and reducing rework during acceptance.",
+        "Developed 3 production apps end to end, from requirements analysis and UI prototyping to testing, deployment, and client handover.",
+        "Integrated Firebase (Firestore, Realtime Database, Cloud Functions, FCM) and Google ML Kit for real-time features, push notifications, and on-device ML.",
+        "Introduced modular code structure and unit tests to existing codebases to improve reliability and reuse across projects.",
+        "Communicated directly with clients to turn business needs into technical solutions and reduce rework during acceptance.",
       ],
       products: [
-        {
-          name: "El Imam Mady Abo El Azaym University App",
-          description: "Attendance, grades, and notifications",
-          url: null,
-        },
-        {
-          name: "Elmenofy",
-          description: "E-commerce with real-time location tracking",
-          url: null,
-        },
-        {
-          name: "Matrix Auction App",
-          description: "Dynamic bidding with secure payments",
-          url: null,
-        },
+        { name: "El Imam Mady Abo El Azaym University App", description: "attendance, grades, notifications", url: null },
+        { name: "Elmenofy", description: "e-commerce with real-time location tracking", url: null },
+        { name: "Matrix Auction App", description: "dynamic bidding with secure payments", url: null },
       ],
     },
   ],
 
-  sideProjects: [
-    {
-      name: "Glowy",
-      tagline: "Wallpaper App",
-      role: "Founder & Solo Developer",
-      stack: [
-        "Flutter",
-        "Clean Architecture",
-        "Cubit",
-        "Node.js",
-        "Fastify",
-        "Cloudflare R2",
-        "RevenueCat",
-        "AdMob",
-      ],
-      bullets: [
-        "Designed, built, and launched a complete consumer product end-to-end: Flutter app (Clean Architecture, Cubit) + Node.js/Fastify backend + Cloudflare R2 storage, published on Google Play.",
-        "Implemented a full monetization stack — RevenueCat subscriptions, AdMob rewarded and interstitial ads — and managed the complete store submission lifecycle including closed testing and production review.",
-      ],
-      url: null,
-      urlLabel: "Google Play",
-    },
-    {
-      name: "ClinicQ",
-      tagline: "Clinic Management Platform",
-      role: "Full-Stack Developer",
-      stack: ["Next.js", "Supabase", "PostgreSQL", "Supabase Auth", "Vercel"],
-      bullets: [
-        "Built and deployed a full-stack clinic management web application with Next.js and Supabase (PostgreSQL, Auth, Vault-managed JWT), deployed to production on Vercel with environment-managed configuration and database migrations.",
-      ],
-      url: null,
-      urlLabel: "Visit site",
-    },
-  ],
-
+  // Items are split on ", " outside parentheses only.
   skills: [
     {
       category: "Languages & Frameworks",
-      skills: [
-        "Dart",
-        "Flutter (Mobile, Web, Desktop)",
-        "Native Android",
-        "JavaScript/TypeScript (Node.js, Next.js)",
-      ],
+      skills: ["Dart", "Flutter (cross-platform mobile: Android & iOS)", "JavaScript"],
     },
     {
       category: "State Management",
-      skills: ["Bloc", "Provider", "GetX"],
+      skills: ["Bloc", "Cubit", "Provider", "GetX"],
     },
     {
       category: "Architecture",
@@ -223,6 +154,7 @@ const SITE_DATA = Object.freeze({
         "Dependency Injection (GetIt, Injectable)",
         "Feature-First Structure",
         "Code Generation (Freezed, json_serializable)",
+        "Performance Optimization",
       ],
     },
     {
@@ -230,9 +162,9 @@ const SITE_DATA = Object.freeze({
       skills: [
         "RESTful APIs (Dio, Retrofit)",
         "Firebase (Firestore, Realtime DB, Cloud Functions, Auth, FCM)",
-        "Supabase",
         "Hive",
         "SQLite (sqflite)",
+        "Offline Data Sync",
       ],
     },
     {
@@ -256,8 +188,7 @@ const SITE_DATA = Object.freeze({
         "Claude Code",
         "OpenAI Codex",
         "GitHub Spec Kit (spec-driven development)",
-        "Custom AI agent skills",
-        "LLM API integration (Claude API, OpenAI API)",
+        "custom AI agent skills",
         "Google ML Kit",
       ],
     },
@@ -268,28 +199,36 @@ const SITE_DATA = Object.freeze({
         "Push Notifications",
         "Google Maps SDK",
         "Geolocation",
-        "In-App Purchases (RevenueCat)",
-        "AdMob",
+        "Camera & Media Upload",
+        "Localization (Arabic/English, RTL)",
         "GoRouter / Navigator 2.0",
       ],
     },
     {
+      category: "Payments & Monetization",
+      skills: [
+        "Payment Gateway Integration (PayFort, Paymob)",
+        "In-App Purchases (RevenueCat)",
+        "AdMob",
+      ],
+    },
+    {
       category: "Tools & Collaboration",
-      skills: ["Figma", "FlutterFlow", "Jira", "Agile/Scrum", "Code Review"],
+      skills: ["Figma", "FlutterFlow", "Jira", "Agile/Scrum"],
     },
   ],
 
   education: {
     degree: "Bachelor of Computers and Informatics, Computer Science",
+    graduated: "2019",
     faculty: "Faculty of Computers and Informatics",
     institution: "Zagazig University, Egypt",
-    year: "2019",
     project: "Optical Mark Recognition",
     grade: "Excellent",
   },
 
   languages: [
     { language: "Arabic", level: "Native" },
-    { language: "English", level: "Professional Working Proficiency" },
+    { language: "English", level: "Good (technical reading & writing)" },
   ],
 });

@@ -4,11 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Resolve the theme before first paint. Must stay inline, synchronous, and
-       above the stylesheet, or a returning light-theme visitor sees a flash of
-       dark. See specs/001-cv-portfolio-redesign/research.md R4. -->
+    <!-- Runs before first paint, so it must stay inline, synchronous, and above
+       the stylesheets.
+       1. Theme: a returning light-theme visitor never sees a flash of dark
+          (specs/001-cv-portfolio-redesign/research.md R4).
+       2. Intro mode: the full landing intro plays once per browser session, and
+          later loads get a short fade. Under reduced motion there is no intro
+          class, so the hero is static (specs/002-cv-motion-redesign/research.md R9). -->
     <script>
       (function () {
+        var root = document.documentElement;
         try {
           var t = localStorage.getItem("theme");
           if (t !== "light" && t !== "dark") {
@@ -16,17 +21,32 @@
               ? "light"
               : "dark";
           }
-          document.documentElement.dataset.theme = t;
+          root.dataset.theme = t;
         } catch (e) {
-          document.documentElement.dataset.theme = "dark";
+          root.dataset.theme = "dark";
+        }
+
+        try {
+          if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            var mode = "intro-short";
+            try {
+              mode = sessionStorage.getItem("introSeen") ? "intro-short" : "intro-full";
+              sessionStorage.setItem("introSeen", "1");
+            } catch (e) {
+              mode = "intro-short";
+            }
+            root.classList.add(mode);
+          }
+        } catch (e) {
+          // No matchMedia: no intro, content stays static.
         }
       })();
     </script>
 
-    <title>Andrew Ayad | Senior Mobile Application Engineer</title>
+    <title>Andrew Ayad Wadie | Senior Flutter Developer</title>
     <meta
       name="description"
-      content="Andrew Ayad Wadie — Senior Mobile Application Engineer and Flutter developer. 5+ years shipping 11+ production apps across government, telecom, payments, and booking."
+      content="Andrew Ayad Wadie, Senior Flutter Developer and Mobile Application Engineer (Dart). 5+ years building and releasing 10 production Flutter applications for government, telecom, booking, and e-commerce clients."
     />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -37,6 +57,7 @@
     />
 
     <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/motion.css" />
   </head>
 
   <body>
@@ -176,25 +197,42 @@
         <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
         <circle cx="12" cy="10" r="3" />
       </symbol>
+      <symbol
+        id="icon-globe"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z" />
+      </symbol>
+      <symbol
+        id="icon-arrow-up"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M12 19V5M5 12l7-7 7 7" />
+      </symbol>
     </svg>
-
     <a class="skip-link" href="#main">Skip to content</a>
+    <div class="scroll-progress" aria-hidden="true"></div>
 
     <header class="nav">
       <div class="container nav__inner">
-        <a href="#" class="nav__logo">
+        <a href="#hero" class="nav__logo" aria-label="Andrew Ayad, back to top">
           <img src="images/logo.svg" alt="" aria-hidden="true" />
-          Andrew<span>.</span>
+          <span class="nav__name">Andrew<b>.</b></span>
         </a>
 
-        <ul class="nav__list" id="nav-list">
-          <li><a href="#summary">About</a></li>
-          <li><a href="#experience">Experience</a></li>
-          <li><a href="#side-projects">Side Projects</a></li>
-          <li><a href="#skills">Skills</a></li>
-          <li><a href="#education">Education</a></li>
-          <li><a href="#contact">Contact</a></li>
-        </ul>
+        <!-- Items are built from SITE_DATA.sections by js/main.js renderNav(). -->
+        <ul class="nav__list" id="nav-list"></ul>
 
         <div class="nav__actions">
           <button
@@ -225,42 +263,77 @@
     </header>
 
     <main id="main">
-      <!-- Hero and summary are static markup by design. They are the ten-second
-         payload (SC-001) and must paint without waiting for any script. -->
-      <section id="hero" class="section hero">
+      <!-- Hero and summary are static markup so they paint before any script.
+         Their wording is the CV, word for word, and is gated by
+         specs/002-cv-motion-redesign/check-cv-sync.py. -->
+      <section id="hero" class="section hero" aria-labelledby="hero-title">
+        <div class="hero__bg" aria-hidden="true">
+          <i class="blob blob--1"></i>
+          <i class="blob blob--2"></i>
+          <i class="blob blob--3"></i>
+        </div>
+
         <div class="container hero__grid">
-          <div>
-            <p class="hero__eyebrow">Open to senior Flutter roles</p>
-            <h1 class="hero__title">Andrew Ayad <span>Wadie</span></h1>
-            <p class="hero__role">
-              Senior Mobile Application Engineer &middot; Flutter &amp; Dart
+          <div class="hero__copy">
+            <h1 class="hero__title" id="hero-title" tabindex="-1"><span class="w"><span style="--w: 0">Andrew</span></span> <span class="w"><span style="--w: 1">Ayad</span></span> <span class="w hero__accent"><span style="--w: 2">Wadie</span></span></h1>
+            <p class="hero__headline">
+              Senior Flutter Developer | Mobile Application Engineer | Dart
             </p>
 
-            <div class="hero__meta">
-              <span>
-                <svg class="icon" aria-hidden="true" focusable="false">
-                  <use href="#icon-pin"></use>
-                </svg>
-                Cairo, Egypt
-              </span>
-              <span>5+ years experience</span>
-              <span>11+ production apps shipped</span>
-            </div>
+            <ul class="hero__contact">
+              <li style="--i: 0">
+                <span class="hero__contact-item">
+                  <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-pin"></use></svg>
+                  Cairo, Egypt
+                </span>
+              </li>
+              <li style="--i: 1">
+                <a class="hero__contact-item" href="https://wa.me/201145678491" target="_blank" rel="noopener noreferrer">
+                  <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-whatsapp"></use></svg>
+                  +20 114 567 8491
+                </a>
+              </li>
+              <li style="--i: 2">
+                <a class="hero__contact-item" href="mailto:andrewayad60@gmail.com?subject=Opportunity%20for%20Andrew%20Ayad">
+                  <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-mail"></use></svg>
+                  andrewayad60@gmail.com
+                </a>
+              </li>
+              <li style="--i: 3">
+                <a class="hero__contact-item" href="https://andrewayad.online" target="_blank" rel="noopener noreferrer">
+                  <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-globe"></use></svg>
+                  andrewayad.online
+                </a>
+              </li>
+              <li style="--i: 4">
+                <a class="hero__contact-item" href="https://linkedin.com/in/andrew-ayad-58764315a" target="_blank" rel="noopener noreferrer">
+                  <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-linkedin"></use></svg>
+                  linkedin.com/in/andrew-ayad-58764315a
+                </a>
+              </li>
+              <li style="--i: 5">
+                <a class="hero__contact-item" href="https://github.com/andrewayadwadie" target="_blank" rel="noopener noreferrer">
+                  <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-github"></use></svg>
+                  github.com/andrewayadwadie
+                </a>
+              </li>
+            </ul>
 
             <div class="hero__actions">
-              <a href="#experience" class="btn btn--primary">View my work</a>
-              <a href="#contact" class="btn">Get in touch</a>
               <a
                 href="files/Andrew_Ayad_Flutter_Developer_CV.pdf"
-                class="btn"
+                class="btn btn--primary"
+                style="--i: 0"
                 target="_blank"
                 rel="noopener noreferrer"
+               
               >
                 <svg class="icon" aria-hidden="true" focusable="false">
                   <use href="#icon-download"></use>
                 </svg>
                 Download CV
               </a>
+              <a href="#contact" class="btn" style="--i: 1">Contact</a>
             </div>
           </div>
 
@@ -275,83 +348,52 @@
         </div>
       </section>
 
-      <section id="summary" class="section" data-reveal>
+      <section id="summary" class="section" data-section aria-labelledby="summary-title">
         <div class="container">
-          <div class="section__head">
-            <span class="section__eyebrow">Profile</span>
-            <h2>Architecture, performance, and shipped software.</h2>
+          <div class="section__head" data-reveal-group>
+            <span class="section__index" aria-hidden="true" data-reveal="fade-up">01</span>
+            <h2 id="summary-title" tabindex="-1" data-reveal="mask">Professional Summary</h2>
           </div>
 
-          <p class="summary__body">
-            Senior Mobile Application Engineer with 5+ years of experience
-            designing, building, and shipping 11+ production Flutter
-            applications on Google Play and the App Store for government,
-            telecom, fintech-adjacent payments, and booking domains. Expert in
-            Clean Architecture, Bloc/Cubit state management, and performance
-            optimization at enterprise scale, including mission-critical systems
-            for the Saudi Ministry of Environment and Ministry of Agriculture.
-            Pioneer of AI-assisted development workflows (Claude Code, OpenAI
-            Codex, spec-driven development) that cut feature delivery and code
-            review time by ~30%. Proven end-to-end ownership: architecture,
-            CI/CD, store deployment, and post-release maintenance for apps
-            serving thousands of active users.
-          </p>
+          <div data-reveal-group>
+            <p class="summary__body" data-reveal="fade-up">
+              Flutter developer with 5+ years of experience building and
+              releasing 10 production Flutter applications on Google Play and
+              the App Store for government, telecom, booking, and e-commerce
+              clients. Works mainly with Clean Architecture, Bloc/Cubit,
+              Dio/Retrofit, and GetIt/Injectable, with hands-on experience
+              integrating payment gateways (PayFort, Paymob), Firebase, and
+              Google Maps. Built government apps for the Saudi Ministry of
+              Environment and Ministry of Agriculture, and handles the release
+              cycle end to end: CI/CD builds, store submission, crash
+              monitoring, and hotfixes. Uses AI-assisted development tools
+              (Claude Code, OpenAI Codex, spec-driven development) in daily
+              work.
+            </p>
 
-          <ul class="summary__stats">
-            <li class="stat">
-              <span class="stat__value">5+</span>
-              <span class="stat__label">Years building Flutter apps</span>
-            </li>
-            <li class="stat">
-              <span class="stat__value">11+</span>
-              <span class="stat__label">Production apps shipped</span>
-            </li>
-            <li class="stat">
-              <span class="stat__value">~30%</span>
-              <span class="stat__label">Faster delivery via AI workflows</span>
-            </li>
-            <li class="stat">
-              <span class="stat__value">2</span>
-              <span class="stat__label">Saudi ministries served</span>
-            </li>
-          </ul>
+            <ul class="stats" data-stats>
+              <li class="stat" data-reveal="fade-up">
+                <span class="stat__value" data-reveal="count" data-count="5" data-suffix="+">5+</span>
+                <span class="stat__label">Years building Flutter apps</span>
+              </li>
+              <li class="stat" data-reveal="fade-up">
+                <span class="stat__value" data-reveal="count" data-count="10" data-suffix="">10</span>
+                <span class="stat__label">Production apps released</span>
+              </li>
+              <li class="stat" data-reveal="fade-up">
+                <span class="stat__value" data-reveal="count" data-count="2" data-suffix="">2</span>
+                <span class="stat__label">Saudi ministries served</span>
+              </li>
+            </ul>
+          </div>
         </div>
       </section>
 
-      <section
-        id="experience"
-        class="section"
-        data-render="experience"
-        data-reveal
-      ></section>
-
-      <section
-        id="side-projects"
-        class="section"
-        data-render="sideProjects"
-        data-reveal
-      ></section>
-
-      <section
-        id="skills"
-        class="section"
-        data-render="skills"
-        data-reveal
-      ></section>
-
-      <section
-        id="education"
-        class="section"
-        data-render="education"
-        data-reveal
-      ></section>
-
-      <section
-        id="contact"
-        class="section"
-        data-render="contact"
-        data-reveal
-      ></section>
+      <section id="experience" class="section" data-section data-render="experience" aria-labelledby="experience-title"></section>
+      <section id="skills" class="section" data-section data-render="skills" aria-labelledby="skills-title"></section>
+      <section id="education" class="section" data-section data-render="education" aria-labelledby="education-title"></section>
+      <section id="languages" class="section" data-section data-render="languages" aria-labelledby="languages-title"></section>
+      <section id="contact" class="section" data-section data-render="contact" aria-labelledby="contact-title"></section>
     </main>
 
     <footer class="footer">
@@ -360,14 +402,16 @@
       </div>
     </footer>
 
-    <div
-      class="visually-hidden"
-      id="live-region"
-      role="status"
-      aria-live="polite"
-    ></div>
+    <button class="btn btn--icon to-top" type="button" aria-label="Back to top" hidden>
+      <svg class="icon" aria-hidden="true" focusable="false">
+        <use href="#icon-arrow-up"></use>
+      </svg>
+    </button>
 
-    <script src="js/data.js"></script>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="js/data.js" defer></script>
     <script src="js/main.js" defer></script>
+    <script src="js/motion.js" defer></script>
   </body>
 </html>
