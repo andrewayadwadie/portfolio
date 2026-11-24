@@ -16,7 +16,7 @@ const SITE_DATA = Object.freeze({
     photo: "images/profile.jpg",
     photoAlt:
       "Andrew Ayad, seated with hands clasped, wearing a dark green shirt against a deep green backdrop",
-    cv: "files/Andrew_Ayad_CV.pdf",
+    cv: "files/Andrew_Ayad_Flutter_Developer_CV.pdf",
   },
 
   contact: [
